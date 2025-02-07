@@ -1,0 +1,26 @@
+
+footer {
+    bottom: 0;
+   
+    
+  
+}
+.toast-message {
+   
+    font-size: 20px;
+    width: 34vw;
+    padding: 30px 20px;
+  }
+
+  .Toastify__toast-container {
+    margin-top: 100px !important; /* Adds space from the top */  
+}
+  .Toastify__toast--error {
+  
+    position: "top-right",
+  }
+
+  .Toastify__toast--success {
+  
+    position: "top-left",
+  }
