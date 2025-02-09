@@ -1,69 +1,69 @@
-import { createContext, useContext, useState } from "react";
-// import { apiClient } from "../api/ApiClient";
-// import { executeJwtAuthenticationService } from "../api/AuthenticationApiService";
-export const AuthContext = createContext()
+import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export const useAuth = () => useContext(AuthContext)
+export const AuthContext = createContext();
 
+export const useAuth = () => useContext(AuthContext);
 
 //2: Share the created context with other components
 export default function AuthProvider({ children }) {
+  const [isAuthenticated, setAuthenticated] = useState(() => {
+    const storedAuth = localStorage.getItem("isAuthenticated");
+    return storedAuth ? JSON.parse(storedAuth) : false;
+  });
+  const [username, setUsername] = useState(() => {
+    const storedUsername = localStorage.getItem("username");
+    return storedUsername ? storedUsername : null;
+  });
+  const [token, setToken] = useState(() => {
+    const storedToken = localStorage.getItem("token");
+    return storedToken ? storedToken : null;
+  });
 
-    const [isAuthenticated, setAuthenticated] = useState(false)
-    const [username, setUsername] = useState(null) //NEW
+  const navigate = useNavigate();
 
-    const [token, setToken] = useState(null)
+  useEffect(() => {
+    localStorage.setItem("isAuthenticated", JSON.stringify(isAuthenticated));
+  }, [isAuthenticated]);
 
-    const authRequestData = {
-        username: username,
-       password:null
+  useEffect(() => {
+    if (username) {
+      localStorage.setItem("username", username);
+    } else {
+      localStorage.removeItem("username"); // Clean up localStorage on logout
     }
-    async function login(username, password) {
+  }, [username]);
 
-       // const baToken = 'Basic ' + window.btoa(username + ":" + password)
-       try {
-
-        authRequestData.password=password
-        authRequestData.username=username
-        const response = await executeJwtAuthenticationService(authRequestData)
-        console.log(response.data)
-
-        if(response.status==200){
-            
-            const jwtToken = 'Bearer ' + response.data
-            console.log(jwtToken)
-            setAuthenticated(true)
-            setUsername(username)
-            setToken(jwtToken)
-
-            apiClient.interceptors.request.use(
-                (config) => {
-                    console.log('intercepting and adding a token')
-                    config.headers.Authorization = jwtToken
-                    return config
-                }
-            )
-
-            return true            
-        } else {
-            logout()
-            return false
-        }    
-    } catch(error) {
-        logout()
-        return false
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token"); // Clean up localStorage on logout
     }
-}
+  }, [token]);
 
-    function logout() {
-        setToken(null)
-        setUsername(null)
-        setAuthenticated(false)
+  function login(username, password) {
+    if (username === "kunal" && password === "123") {
+      setUsername(username);
+      setAuthenticated(true);
+      //setToken("dummyToken");  // Set a token if you need one for your app
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, username,token }}>
-            {children}
-        </AuthContext.Provider>
-    )
+  function logout() {
+    console.log("logout succesful");
+    setUsername(null);
+    setAuthenticated(false);
+    setToken(null); // Also clear the token
+    navigate(`/`);
+  }
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, username, token }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

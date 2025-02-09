@@ -1,12 +1,18 @@
-import React from 'react'
+import React from 'react';
 
 export default function Welcome() {
   return (
-    <div class="alert alert-success" role="alert">
-  <h4 class="alert-heading">Welcome all to Employee Management System !</h4>
-  <p>Aww yeah, you successfully read this important alert message. This example text is going to run a bit longer so that you can see how spacing within an alert works with this kind of content.</p>
-  <hr/>
-  <p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and tidy.</p>
-</div>
-  )
+    <div className="container d-flex justify-content-center align-items-center vh-100">
+      <div className="col-md-8 text-center">
+        <div className="alert alert-success shadow-lg rounded p-4" role="alert">
+          <h4 className="alert-heading">Welcome to Employee Management System!</h4>
+          <p>
+            Aww yeah, you successfully accessed the system. This platform helps you manage employees efficiently, track records, and streamline operations.
+          </p>
+          <hr />
+          <p className="mb-0">Use the dashboard to navigate through various features and manage employee details with ease.</p>
+        </div>
+      </div>
+    </div>
+  );
 }
