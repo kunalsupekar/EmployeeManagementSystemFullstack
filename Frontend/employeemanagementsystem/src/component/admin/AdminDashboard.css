@@ -1,0 +1,34 @@
+/* Sidebar styling */
+.sidebar {
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed position */
+    top: 15;
+   left: 0;
+    overflow-x: hidden; /* Hide horizontal scroll */
+    padding-top: 10px;
+
+}
+
+.sidebar-heading {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.nav-link {
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #f8f9fa; /* Light background on hover */
+    color: #007bff; /* Change text color on hover */
+}
+
+/* Main content area */
+.col-md-9 {
+    margin-left: 25%; /* Adjust margin to account for the sidebar */
+    padding: 20px;
+}

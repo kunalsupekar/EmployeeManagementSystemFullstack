@@ -1,68 +1,76 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { userLoginApi } from "../../api/EmployeeApiService";
 
+// Create AuthContext
 export const AuthContext = createContext();
 
+// Custom hook to use AuthContext
 export const useAuth = () => useContext(AuthContext);
 
-//2: Share the created context with other components
+// AuthProvider component
 export default function AuthProvider({ children }) {
-  const [isAuthenticated, setAuthenticated] = useState(() => {
-    const storedAuth = localStorage.getItem("isAuthenticated");
-    return storedAuth ? JSON.parse(storedAuth) : false;
-  });
-  const [username, setUsername] = useState(() => {
-    const storedUsername = localStorage.getItem("username");
-    return storedUsername ? storedUsername : null;
-  });
-  const [token, setToken] = useState(() => {
-    const storedToken = localStorage.getItem("token");
-    return storedToken ? storedToken : null;
-  });
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    localStorage.setItem("isAuthenticated", JSON.stringify(isAuthenticated));
-  }, [isAuthenticated]);
+  // Combined state for user authentication and details
+  const [authState, setAuthState] = useState(() => {
+    const storedAuth = sessionStorage.getItem("authState");
+    return storedAuth
+      ? JSON.parse(storedAuth)
+      : { isAuthenticated: false, userEmail: null, token: null, role: null };
+  });
 
+  // Update local storage whenever authState changes
   useEffect(() => {
-    if (username) {
-      localStorage.setItem("username", username);
-    } else {
-      localStorage.removeItem("username"); // Clean up localStorage on logout
-    }
-  }, [username]);
+    sessionStorage.setItem("authState", JSON.stringify(authState));
+  }, [authState]);
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-    } else {
-      localStorage.removeItem("token"); // Clean up localStorage on logout
-    }
-  }, [token]);
+  // Login function
+  async function login(userEmail, password) {
+    try {
+      const response = await userLoginApi(userEmail, password);
 
-  function login(username, password) {
-    if (username === "kunal" && password === "123") {
-      setUsername(username);
-      setAuthenticated(true);
-      //setToken("dummyToken");  // Set a token if you need one for your app
-      return true;
-    } else {
+      if (response.status === 200) {
+        // Update authState with new user details
+        setAuthState({
+          isAuthenticated: true,
+          userEmail,
+          token: response.data.token, // Assuming the API returns a token
+          role: response.data, // Assuming the API returns a role
+        });
+
+        return true;
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
       return false;
     }
   }
 
+  // Logout function
   function logout() {
-    console.log("logout succesful");
-    setUsername(null);
-    setAuthenticated(false);
-    setToken(null); // Also clear the token
-    navigate(`/`);
+    console.log("Logout successful");
+    setAuthState({
+      isAuthenticated: false,
+      userEmail: null,
+      token: null,
+      role: null,
+    });
+    navigate("/");
   }
 
+  // Provide authState and functions to children
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, username, token }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: authState.isAuthenticated,
+        userEmail: authState.userEmail,
+        token: authState.token,
+        role: authState.role,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

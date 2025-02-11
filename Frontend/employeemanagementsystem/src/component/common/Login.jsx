@@ -4,108 +4,96 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../security/AuthContext';
 
 export default function Login() {
-  const [username, setUsername] = useState('kunal');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
-  const authContext = useAuth();
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const navigate = useNavigate();
+    const [userEmail, setUserEmail] = useState('kunalsupekar965@gmail.com');
+    const [password, setPassword] = useState('123');
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const authContext = useAuth();
+    const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    if (authContext.login(username, password)) {
-      if (role === 'admin') {
-        navigate('/adminDashboard');
-      } else {
-        navigate('/userDashboard');
-      }
-    } else {
-      setShowErrorMessage(true);
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            if (await authContext.login(userEmail, password)) {
+                navigate(`/userDashboard`);
+            } else {
+                setShowErrorMessage(true);
+            }
+        } catch (error) {
+            setShowErrorMessage(true);
+        } finally {
+            setIsLoading(false);
+        }
     }
-  };
 
-  return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card shadow-sm border-0">
-            {/* Added shadow and removed border */}
-            <div className="card-body p-4">
-              {/* Added padding for a cleaner look */}
-              <h5 className="card-title text-center mb-4">Login as {role}</h5>{' '}
-              {/* Changed to h5 for a subtler title */}
-              {showErrorMessage && (
-                <div className="alert alert-danger" role="alert">
-                  Authentication Failed. Please check your credentials.
+    return (
+        <div className="container mt-5">
+            <div className="row justify-content-center">
+                <div className="col-md-6">
+                    <div className="card shadow-sm border-0">
+                        <div className="card-body p-4">
+                            <h5 className="card-title text-center mb-4">Time to Login</h5>
+                            {showErrorMessage && (
+                                <div className="alert alert-danger fade-in" role="alert">
+                                    Authentication Failed. Please check your credentials.
+                                </div>
+                            )}
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-3">
+                                    <label htmlFor="userEmail" className="form-label">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        className="form-control form-control-sm"
+                                        id="userEmail"
+                                        name="userEmail"
+                                        value={userEmail}
+                                        onChange={(e) => {
+                                            setUserEmail(e.target.value);
+                                            setShowErrorMessage(false);
+                                        }}
+                                        placeholder="Enter your userEmail"
+                                        aria-describedby="userEmailHelp"
+                                    />
+                                    <div id="userEmailHelp" className="form-text">Enter your registered userEmail.</div>
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="password" className="form-label">
+                                        Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className="form-control form-control-sm"
+                                        id="password"
+                                        name="password"
+                                        value={password}
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            setShowErrorMessage(false);
+                                        }}
+                                        placeholder="Enter your password"
+                                    />
+                                </div>
+                                <div className="d-grid">
+                                    <button
+                                        type="submit"
+                                        className="btn btn-outline-primary btn-sm me-2"
+                                        name="login"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? 'Logging in...' : 'Login'}
+                                    </button>
+                                    <div className="mt-2 text-center">
+                                        Don't have an account? <Link to="/register">Sign up</Link>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-              )}
-              <form>
-                <div className="mb-3">
-                  <label htmlFor="username" className="form-label">
-                    Username
-                  </label>{' '}
-                  {/* Shortened label */}
-                  <input
-                    type="text"
-                    className="form-control form-control-sm" // Smaller input
-                    id="username"
-                    name="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)} // Inline onChange
-                    placeholder="Enter your username"
-                  />{' '}
-                  {/* Added placeholder */}
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password
-                  </label>{' '}
-                  {/* Shortened label */}
-                  <input
-                    type="password"
-                    className="form-control form-control-sm" // Smaller input
-                    id="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)} // Inline onChange
-                    placeholder="Enter your password"
-                  />{' '}
-                  {/* Added placeholder */}
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
-                    Login As
-                  </label>{' '}
-                  {/* More formal label */}
-                  <select
-                    className="form-select form-select-sm" // Smaller select
-                    id="role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                  >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-                <div className="d-grid">
-                  <button
-                  
-                    type="button"
-                    className="btn btn-outline-primary btn-sm me-2" // Smaller button
-                    name="login"
-                    onClick={handleSubmit}
-                  >
-                    Login
-                  </button>
-                  <div className="mt-2 text-center">
-                    {/* Slightly improved readability */}
-                    Don't have an account? <Link to="/register">Sign up</Link>
-                  </div>
-                </div>
-              </form>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

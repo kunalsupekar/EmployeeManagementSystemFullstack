@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,6 +34,8 @@ public class User {
 
     private String firstName;
     private String lastName;
+    
+    @Column(unique = true, nullable = false)
     private String email;
     private String password;
 
@@ -44,6 +47,7 @@ public class User {
 
     private String mobileNo;
     private LocalDateTime registeredAt;
+  
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true
     		,fetch = FetchType.LAZY)

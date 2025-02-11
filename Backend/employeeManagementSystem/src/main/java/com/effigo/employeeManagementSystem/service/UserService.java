@@ -10,13 +10,21 @@ public interface UserService {
 	//public List<UserDto> getAllUsers();
 	
 	
-	public void deleteUserById(int userId);
+	
 	
 	
 	
 	public UserDto addUser(UserDto userDto);
 
 	public UserDto getUserById(int userId);
+
+
+
+	public UserDto getUserByEmail(String userEmail);
+
+
+
+	public UserDto updateUser(int userId, UserDto userDto);
 	
 
 	

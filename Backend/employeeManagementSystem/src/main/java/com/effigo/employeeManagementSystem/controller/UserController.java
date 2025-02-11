@@ -38,6 +38,13 @@ public class UserController {
         return ResponseEntity.ok().body(returnDto);
     }
 
+    @GetMapping("/email/{userEmail}")
+    public ResponseEntity<UserDto> getUserByEmailAddress(@PathVariable String  userEmail) {
+        UserDto returnDto = userService.getUserByEmail(userEmail);
+        return ResponseEntity.ok().body(returnDto);
+    }
+    
+    
     @PostMapping
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
         UserDto createdUser = userService.addUser(userDto);
@@ -45,9 +52,10 @@ public class UserController {
     }
 
     
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable int userId) {
-        userService.deleteUserById(userId);
-        return ResponseEntity.ok("User deleted successfully.");
+    
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable int userId, @RequestBody UserDto userDto) {
+        UserDto updatedUser = userService.updateUser(userId, userDto);
+        return ResponseEntity.ok(updatedUser);
     }
 }

@@ -1,7 +1,7 @@
 package com.effigo.employeeManagementSystem.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import com.effigo.employeeManagementSystem.model.User;
 import com.effigo.employeeManagementSystem.model.User.ROLES;
 import com.effigo.employeeManagementSystem.model.User.STATUS;
 import com.effigo.employeeManagementSystem.repository.UserRepository;
+import com.effigo.employeeManagementSystem.security.PasswordEncoderUtil;
 import com.effigo.employeeManagementSystem.service.EmailService;
 import com.effigo.employeeManagementSystem.service.UserService;
 
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+    private PasswordEncoderUtil passwordEncoderUtil;
+	
 	@Autowired
 	private ModelMapper modelMapper;
 
@@ -35,10 +39,22 @@ public class UserServiceImpl implements UserService {
 		return userToUserDto(user);
 	}
 
+	
+	
+	@Override
+	public UserDto getUserByEmail(String userEmail) {
+		User user = userRepository.findByEmail(userEmail)
+				.orElseThrow(() -> new UserNotFoundException("User with email " + userEmail + " not found"));
+		return userToUserDto(user);
+	}
+	
 	@Override
 	public UserDto addUser(UserDto userDto) {
 		userDto.setRole(ROLES.USER);
 		userDto.setStatus(STATUS.PENDING);
+		userDto.setRegisteredAt(LocalDateTime.now());
+		//String encryptedPassword=passwordEncoderUtil.encryptPassword(userDto.getPassword());
+		//userDto.setPassword(encryptedPassword);
 		User user = dtoToUser(userDto);
 		
 
@@ -50,12 +66,29 @@ public class UserServiceImpl implements UserService {
 
 	
 
-	@Override
-	public void deleteUserById(int userId) {
-		User user = userRepository.findById(userId)
+    @Override
+	public UserDto updateUser(int userId, UserDto userDto) {
+		User existingUser = userRepository.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
-		userRepository.delete(user);
+
+		// Update fields
+		existingUser.setFirstName(userDto.getFirstName());
+		existingUser.setLastName(userDto.getLastName());
+		//existingUser.setEmail(userDto.getEmail());
+		existingUser.setMobileNo(userDto.getMobileNo());
+		//existingUser.setStatus(userDto.getStatus());
+		//existingUser.setRole(userDto.getRole());
+
+		User updatedUser = userRepository.save(existingUser);
+		// return modelMapper.map(updatedUser, UserDto.class);
+		return modelMapper.map(updatedUser,UserDto.class);
 	}
+
+    
+	
+	
+
+
 
 	
 	private User dtoToUser(UserDto userDto) {
@@ -65,5 +98,8 @@ public class UserServiceImpl implements UserService {
 	private UserDto userToUserDto(User user) {
 		return modelMapper.map(user, UserDto.class);
 	}
+	
+	
+	
 
 }
