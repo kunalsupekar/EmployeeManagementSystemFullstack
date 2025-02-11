@@ -45,7 +45,7 @@ public class UserController {
     }
     
     
-    @PostMapping
+    @PostMapping("/register")//api/user/register
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
         UserDto createdUser = userService.addUser(userDto);
         return ResponseEntity.status(201).body(createdUser); // HTTP 201 Created

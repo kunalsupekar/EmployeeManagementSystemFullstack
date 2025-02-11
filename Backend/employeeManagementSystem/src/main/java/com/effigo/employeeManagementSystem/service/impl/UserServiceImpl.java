@@ -13,9 +13,9 @@ import com.effigo.employeeManagementSystem.model.User;
 import com.effigo.employeeManagementSystem.model.User.ROLES;
 import com.effigo.employeeManagementSystem.model.User.STATUS;
 import com.effigo.employeeManagementSystem.repository.UserRepository;
-import com.effigo.employeeManagementSystem.security.PasswordEncoderUtil;
 import com.effigo.employeeManagementSystem.service.EmailService;
 import com.effigo.employeeManagementSystem.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 
 	@Autowired
-    private PasswordEncoderUtil passwordEncoderUtil;
+    private PasswordEncoder passwordEncoder; // Autowired instead of creating a new instance
 	
 	@Autowired
 	private ModelMapper modelMapper;
@@ -53,8 +53,8 @@ public class UserServiceImpl implements UserService {
 		userDto.setRole(ROLES.USER);
 		userDto.setStatus(STATUS.PENDING);
 		userDto.setRegisteredAt(LocalDateTime.now());
-		//String encryptedPassword=passwordEncoderUtil.encryptPassword(userDto.getPassword());
-		//userDto.setPassword(encryptedPassword);
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
 		User user = dtoToUser(userDto);
 		
 
