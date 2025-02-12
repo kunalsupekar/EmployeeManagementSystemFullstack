@@ -1,4 +1,6 @@
+import axios from 'axios';
 import React, { useState } from 'react';
+import { checkApiService } from '../../api/EmployeeApiService';
 
 function UserNotifications() {
   const [notifications, setNotifications] = useState([
@@ -7,16 +9,18 @@ function UserNotifications() {
   ]);
   const [newMessage, setNewMessage] = useState('');
 
-  const handleSendNotification = () => {
-    if (newMessage.trim() !== '') {
-      const newNotification = {
-        id: Date.now(),
-        sender: 'User',
-        message: newMessage,
-      };
-      setNotifications([...notifications, newNotification]);
-      setNewMessage('');
+  const handleSendNotification = async() => {
+ 
+
+    try{
+      const response= await checkApiService();
+      console.log(response)
+      //alert(response.data)
+    }catch{
+
     }
+
+
   };
 
   return (

@@ -20,6 +20,7 @@ import UpdateProfile from './user/UpdateProfile';
 import DisplayDocument from './user/DisplayDocument';
 import DeleteUser from './admin/DeleteUser';
 import ImportUser from './admin/ImportUser';
+import ErrorPage from './common/ErrorPage';
 export default function EMSmain() {
   return (
 
@@ -49,6 +50,7 @@ export default function EMSmain() {
           <Route path="/updateProfile" element={<UpdateProfile />} />
 
           <Route path="/register" element={<RegisterUser />} />
+          <Route path="/errorPage" element={<ErrorPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/not" element={<UserNotifications />} />

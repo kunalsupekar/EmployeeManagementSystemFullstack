@@ -26,9 +26,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+        .cors().and()
             .csrf(csrf -> csrf.disable())  // Disable CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register","/authenticate").permitAll()  // Allow authentication endpoint
+                .requestMatchers("/api/users/register","/authenticate",
+                		"/api/use").permitAll()  // Allow authentication endpoint
                 .anyRequest().authenticated()  // Secure all other endpoints
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session

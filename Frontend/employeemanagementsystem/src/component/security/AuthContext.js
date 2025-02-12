@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { userLoginApi } from "../../api/EmployeeApiService";
+import { executeJwtAuthenticationService } from "../../api/AuthenticationServiceApi";
 
 // Create AuthContext
 export const AuthContext = createContext();
@@ -12,35 +12,59 @@ export const useAuth = () => useContext(AuthContext);
 export default function AuthProvider({ children }) {
   const navigate = useNavigate();
 
-  // Combined state for user authentication and details
-  const [authState, setAuthState] = useState(() => {
-    const storedAuth = sessionStorage.getItem("authState");
-    return storedAuth
-      ? JSON.parse(storedAuth)
-      : { isAuthenticated: false, userEmail: null, token: null, role: null };
+  // Separate states for user authentication and details
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem("isAuthenticated") === "true";
   });
 
-  // Update local storage whenever authState changes
+  const [userEmail, setUserEmail] = useState(() => {
+    return sessionStorage.getItem("userEmail") || null;
+  });
+
+  const [token, setToken] = useState(() => {
+    return sessionStorage.getItem("token") || null;
+  });
+
+  const [role, setRole] = useState(() => {
+    return sessionStorage.getItem("role") || null;
+  });
+
+  // Update session storage whenever state changes
   useEffect(() => {
-    sessionStorage.setItem("authState", JSON.stringify(authState));
-  }, [authState]);
+    sessionStorage.setItem("isAuthenticated", isAuthenticated);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    sessionStorage.setItem("userEmail", userEmail);
+  }, [userEmail]);
+
+  useEffect(() => {
+    sessionStorage.setItem("token", token);
+  }, [token]);
+
+  useEffect(() => {
+    sessionStorage.setItem("role", role);
+  }, [role]);
 
   // Login function
   async function login(userEmail, password) {
     try {
-      const response = await userLoginApi(userEmail, password);
+      const response = await executeJwtAuthenticationService({ email: userEmail, password });
 
       if (response.status === 200) {
-        // Update authState with new user details
-        setAuthState({
-          isAuthenticated: true,
-          userEmail,
-          token: response.data.token, // Assuming the API returns a token
-          role: response.data, // Assuming the API returns a role
-        });
+        const jwtToken = "Bearer " + response.data.token;
+
+        // Update individual states
+        setIsAuthenticated(true);
+        setUserEmail(userEmail);
+        setToken(jwtToken);
+        setRole(response.data.role);
+
+        // Store token in session storage
+        sessionStorage.setItem("token", jwtToken);
 
         return true;
-      }
+            }
     } catch (error) {
       console.error("Login failed:", error);
       return false;
@@ -50,12 +74,19 @@ export default function AuthProvider({ children }) {
   // Logout function
   function logout() {
     console.log("Logout successful");
-    setAuthState({
-      isAuthenticated: false,
-      userEmail: null,
-      token: null,
-      role: null,
-    });
+
+    // Reset individual states
+    setIsAuthenticated(false);
+    setUserEmail(null);
+    setToken(null);
+    setRole(null);
+
+    // Remove items from session storage
+    sessionStorage.removeItem("isAuthenticated");
+    sessionStorage.removeItem("userEmail");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
+
     navigate("/");
   }
 
@@ -63,10 +94,10 @@ export default function AuthProvider({ children }) {
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated: authState.isAuthenticated,
-        userEmail: authState.userEmail,
-        token: authState.token,
-        role: authState.role,
+        isAuthenticated,
+        userEmail,
+        token,
+        role,
         login,
         logout,
       }}

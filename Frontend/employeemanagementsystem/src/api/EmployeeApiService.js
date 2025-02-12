@@ -2,13 +2,15 @@ import { apiClient } from "./ApiClient"
 
 
 export const addUserApi
-  = (user) => apiClient.post(`/api/users`, user)
+  = (user) => apiClient.post(`/api/users/register`, user)
 
   export const userLoginApi
   = (userEmail,password) => apiClient.post(`/api/login`, {userEmail,password})
 
-  export const getUserByEmail=
-  (userEmail)=>apiClient.get(`/api/users/email/${userEmail}`)
+  export const getUserByEmail = (userEmail) => 
+    apiClient.get(`/api/users/email/${userEmail}`)
+  
+
 
   export const updateUserProfile = (userId, updatedData) => {
     return apiClient.put(`api/users/${userId}`, updatedData);
@@ -31,6 +33,12 @@ export const changeUserStatusById=(userId,newStatus)=> apiClient.post(`api/admin
 
 
 
+  export const importUserFromFile=(formData)=>
+    apiClient.post(`/api/admin/users/import`,formData,{
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
 
 
 
@@ -46,4 +54,13 @@ export const uploadFileForUser=(userId,formData)=>
     'Content-Type': 'multipart/form-data'
   }
 })
+
+export const checkApiService=()=>
+  apiClient.get(`/api/users/email`,{
+    headers: {
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTaGFrdUBnbWFpbC5jb20iLCJpYXQiOjE3MzkzNDk3NDYsImV4cCI6MTczOTM2Nzc0Nn0.lM_5q3edHrR7fo1pZD-Dz5o50pFEucbbdgWi_ZkB2zw'
+    },
+    withCredentials: true 
+  })
+
 

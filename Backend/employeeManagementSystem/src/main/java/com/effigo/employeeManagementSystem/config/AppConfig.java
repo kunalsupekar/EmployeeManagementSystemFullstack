@@ -14,16 +14,34 @@ public class AppConfig {
 		return new ModelMapper();
 	}
 
+//	@Bean
+//	public WebMvcConfigurer corsConfigurer() {
+//	    return new WebMvcConfigurer() {
+//	        @Override
+//	        public void addCorsMappings(CorsRegistry registry) {
+//	            registry.addMapping("/**")
+//	                    .allowedOriginPatterns("*") // Allows all origins with credentials support
+//	                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//	                    .allowedHeaders("*")
+//	                    .allowCredentials(true); // Enables cookies and authorization headers
+//	        }
+//	    };
+//	}
+	
+	
 	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**") // Allow all endpoints
-						.allowedOrigins("http://localhost:3000") 
-						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
-						.allowCredentials(true);
-			}
-		};
-	}
+    public WebMvcConfigurer webMvcConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:3000")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
+
 }

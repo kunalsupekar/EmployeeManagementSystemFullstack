@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './AdminDashboard.css'; // Custom CSS for sidebar
-
+import './AdminDashboard.css'; 
 const AdminDashboard = () => {
     return (
         <div className="container-fluid">

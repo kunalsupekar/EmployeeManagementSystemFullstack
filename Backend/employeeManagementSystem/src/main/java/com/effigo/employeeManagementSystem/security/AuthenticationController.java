@@ -38,7 +38,13 @@ public class AuthenticationController {
         final String jwt = jwtUtil.generateToken(userDetails);
 
         
-        System.out.println("authenticate and return jwt");
-        return ResponseEntity.ok(jwt);
+        User user = (User) userDetails;
+
+        // Get the user role
+        String role = user.getRole().name();
+
+        // Return the token and role in the response
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, role));
+        
     }
 }

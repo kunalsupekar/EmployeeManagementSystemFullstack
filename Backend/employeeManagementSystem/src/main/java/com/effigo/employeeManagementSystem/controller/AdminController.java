@@ -22,6 +22,7 @@ import com.effigo.employeeManagementSystem.dto.UserDto;
 import com.effigo.employeeManagementSystem.model.User;
 import com.effigo.employeeManagementSystem.model.User.STATUS;
 import com.effigo.employeeManagementSystem.service.AdminService;
+import com.effigo.employeeManagementSystem.service.ImportUserService;
 
  @RestController
  @RequestMapping("/api/admin")
@@ -30,9 +31,11 @@ import com.effigo.employeeManagementSystem.service.AdminService;
    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
    private final AdminService adminService;
-
-   public AdminController(AdminService adminService) {
+   	private final ImportUserService importUserService;
+   
+   public AdminController(AdminService adminService,ImportUserService importUserService) {
      this.adminService = adminService;
+     this.importUserService=importUserService;
    }
    
    
@@ -76,6 +79,14 @@ import com.effigo.employeeManagementSystem.service.AdminService;
 	  // System.out.println("status assign");
        return ResponseEntity.ok(adminService.changeUserStatus(userId,newStatus1));
    }
+   
+   
+   @PostMapping("/users/import")
+   public ResponseEntity<Void> importUsersFromFile(@RequestParam("file") MultipartFile file) {
+	   importUserService.importUserFromFile(file);
+	   return ResponseEntity.ok().build();
+   }
+   
    
    
    

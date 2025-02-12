@@ -36,6 +36,28 @@ import com.effigo.employeeManagementSystem.repository.UserRepository;
 
 	        mailSender.send(message);
 	    }
+	    
+	    
+	    @Async
+	    public void sendEmailToAdminsWhenUserImported(List<String> adminEmails, String newUserFirstName) {
+	        if (adminEmails.isEmpty()) {
+	            return; // No admin emails found, skip sending email
+	        }
+
+	        SimpleMailMessage message = new SimpleMailMessage();
+	        StringBuilder content = new StringBuilder("Hello Admin,\n\n");
+	        content.append(newUserFirstName);
+
+	        content.append(" New bulk users Imported ,");
+	        content.append("Please review their approval request.");
+	        message.setTo(adminEmails.toArray(new String[0])); // Convert list to array
+	        message.setSubject("Bulk UsersRegistration Approval Requests");
+	        message.setText(content.toString());
+
+	        mailSender.send(message);
+	    }
+	    
+	    
 	}
 
 

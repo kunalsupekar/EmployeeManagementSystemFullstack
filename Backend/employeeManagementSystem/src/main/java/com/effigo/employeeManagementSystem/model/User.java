@@ -1,6 +1,8 @@
 package com.effigo.employeeManagementSystem.model;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -21,8 +23,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Collection;
-import java.util.Collections;
 
 @Entity
 @Getter
@@ -75,6 +75,17 @@ public class User implements UserDetails {
         return Collections.singletonList(() -> "ROLE_" + role.name());
     }
 
+//	@Override
+//	public Collection<? extends GrantedAuthority> getAuthorities() {
+//	    return Collections.singletonList(new GrantedAuthority() {
+//	        @Override
+//	        public String getAuthority() {
+//	            return "ROLE_" + role.name();
+//	        }
+//	    });
+//	}
+
+	
     @Override
     public String getUsername() {
         return email;
@@ -97,6 +108,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+    	//System.out.println("User " + email + " status: " + status);
         return status == STATUS.ACTIVE;
     }
 	

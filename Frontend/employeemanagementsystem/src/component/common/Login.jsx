@@ -1,23 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../security/AuthContext';
 
 export default function Login() {
-    const [userEmail, setUserEmail] = useState('kunalsupekar965@gmail.com');
+    const [userEmail, setUserEmail] = useState('Shaku@gmail.com');
     const [password, setPassword] = useState('123');
     const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const authContext = useAuth();
     const navigate = useNavigate();
+    
+
+    useEffect(() => {
+        if (authContext.role) {
+            console.log("Role is", authContext.role);
+            // Navigate based on role
+            if (authContext.role === "ADMIN") {
+                navigate("/admin");
+            } else if (authContext.role === "USER") {
+                navigate("/userDashboard");
+            }
+        }
+    }, [authContext.role, navigate]);
+
 
     async function handleSubmit(e) {
         e.preventDefault();
         setIsLoading(true);
         try {
-            if (await authContext.login(userEmail, password)) {
-                navigate(`/userDashboard`);
-            } else {
+            const loginSuccess = await authContext.login(userEmail, password);
+            if (!loginSuccess) {
                 setShowErrorMessage(true);
             }
         } catch (error) {
