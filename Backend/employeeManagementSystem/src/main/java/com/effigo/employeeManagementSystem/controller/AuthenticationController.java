@@ -1,4 +1,4 @@
-package com.effigo.employeeManagementSystem.security;
+package com.effigo.employeeManagementSystem.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.effigo.employeeManagementSystem.model.AuthenticationResponse;
 import com.effigo.employeeManagementSystem.model.User;
+import com.effigo.employeeManagementSystem.security.JwtUtil;
+import com.effigo.employeeManagementSystem.service.CustomUserDetailsService;
+import com.effigo.employeeManagementSystem.service.LoginHistoryService;
 
 @RestController
 public class AuthenticationController {
@@ -23,6 +27,9 @@ public class AuthenticationController {
 
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @Autowired
+    private LoginHistoryService loginHistoryService;
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody User authenticationRequest) throws Exception {
@@ -36,13 +43,12 @@ public class AuthenticationController {
 
         final UserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getEmail());
         final String jwt = jwtUtil.generateToken(userDetails);
-
-        
         User user = (User) userDetails;
-
         // Get the user role
         String role = user.getRole().name();
-
+       
+        loginHistoryService.saveLogin(user);
+       
         // Return the token and role in the response
         return ResponseEntity.ok(new AuthenticationResponse(jwt, role));
         

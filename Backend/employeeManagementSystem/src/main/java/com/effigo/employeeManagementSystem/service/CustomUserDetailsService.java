@@ -1,4 +1,4 @@
-package com.effigo.employeeManagementSystem.security;
+package com.effigo.employeeManagementSystem.service;
 import com.effigo.employeeManagementSystem.model.User;
 import com.effigo.employeeManagementSystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

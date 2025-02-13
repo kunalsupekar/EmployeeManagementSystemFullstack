@@ -1,9 +1,12 @@
 package com.effigo.employeeManagementSystem.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +20,7 @@ import com.effigo.employeeManagementSystem.model.UserFile;
 import com.effigo.employeeManagementSystem.repository.UserFileRepository;
 import com.effigo.employeeManagementSystem.repository.UserRepository;
 import com.effigo.employeeManagementSystem.service.AdminService;
+import com.effigo.employeeManagementSystem.service.EmailService;
 import com.effigo.employeeManagementSystem.service.IFileUploadService;
 
 import jakarta.transaction.Transactional;
@@ -28,14 +32,18 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final UserFileRepository userFileRepository;
 	private final ModelMapper modelMapper;
-    
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder; // Autowired instead of creating a new instance
 	
     public AdminServiceImpl(IFileUploadService fileUploadService, UserRepository userRepository, 
-    		UserFileRepository userFileRepository,ModelMapper modelMapper) {
+    		UserFileRepository userFileRepository,ModelMapper modelMapper,PasswordEncoder passwordEncoder
+    		,EmailService emailService) {
         this.fileUploadService = fileUploadService;
         this.userRepository = userRepository;
         this.userFileRepository = userFileRepository;
         this.modelMapper=modelMapper;
+        this.passwordEncoder=passwordEncoder;
+        this.emailService=emailService;
     }
     
     @Override
@@ -95,12 +103,30 @@ public class AdminServiceImpl implements AdminService {
                  .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
     	
     	 existingUser.setStatus(status);
-
- 		User updatedUser = userRepository.save(existingUser);
+    	 emailService.sendEmailToUserWhenStatusChange(existingUser.getEmail(),
+    			 existingUser.getFirstName(),status);
+    	 User updatedUser = userRepository.save(existingUser);
     	return modelMapper.map(updatedUser, UserDto.class);
     }
     
     
+     @Override
+    public UserDto registerUserByEmail(UserDto userDto) {
+    	 userDto.setRole(ROLES.USER);
+ 		userDto.setStatus(STATUS.PENDING);
+ 		userDto.setRegisteredAt(LocalDateTime.now());
+ 		String password=userDto.getPassword();
+         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+         User user = modelMapper.map(userDto, User.class);
+ 		User savedUser = userRepository.save(user);
+ 	    //List<String> adminEmails = userRepository.findEmailsByRole(User.ROLES.ADMIN);
+ 	     emailService.sendEmailToUser(savedUser.getEmail() , user.getFirstName() ,password);
+ 		return modelMapper.map(savedUser, UserDto.class);// TODO Auto-generated method stub
+  
+    }
+     
+     
+     
     @Override
     @Transactional
     public String uploadFileForUser(int userId, MultipartFile document) {
@@ -119,6 +145,8 @@ public class AdminServiceImpl implements AdminService {
             throw new CustomException("File upload failed for user ID " + userId + ": " + e.getMessage());
         }
     }
+    
+    
     
     
     

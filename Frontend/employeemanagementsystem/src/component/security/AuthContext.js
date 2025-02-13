@@ -51,6 +51,11 @@ export default function AuthProvider({ children }) {
     try {
       const response = await executeJwtAuthenticationService({ email: userEmail, password });
 
+      // if(response.data.message="User is disabled"){
+      //   console.log('profile is inactive')
+      // }
+      
+
       if (response.status === 200) {
         const jwtToken = "Bearer " + response.data.token;
 
@@ -66,6 +71,11 @@ export default function AuthProvider({ children }) {
         return true;
             }
     } catch (error) {
+      const message=error.response.data.message
+      if(message==="User is disabled"){
+        return 403
+      }
+     
       console.error("Login failed:", error);
       return false;
     }

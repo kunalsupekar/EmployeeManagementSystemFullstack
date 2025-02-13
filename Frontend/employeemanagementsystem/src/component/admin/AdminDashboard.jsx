@@ -16,9 +16,9 @@ const AdminDashboard = () => {
                             <li className="nav-item">
                                 <Link to="/admin/users" className="nav-link">List Users</Link>
                             </li>
-                            {/* <li className="nav-item">
+                            <li className="nav-item">
                                 <Link to="/admin/register" className="nav-link">Register User</Link>
-                            </li> */}
+                            </li>
                             <li className="nav-item">
                                 <Link to="/admin/import" className="nav-link">Import Users</Link>
                             </li>
@@ -27,6 +27,9 @@ const AdminDashboard = () => {
                             </li>
                             <li className="nav-item">
                                 <Link to="/admin/delete" className="nav-link">Delete User</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/admin/loginHistory" className="nav-link">User Login History</Link>
                             </li>
                         </ul>
                     </div>

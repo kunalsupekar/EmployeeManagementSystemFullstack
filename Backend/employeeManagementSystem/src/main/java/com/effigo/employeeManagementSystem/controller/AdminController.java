@@ -1,8 +1,6 @@
  package com.effigo.employeeManagementSystem.controller;
 
- import java.io.ObjectInputFilter.Status;
-import java.util.List;
-import java.util.Map;
+ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.effigo.employeeManagementSystem.dto.LoginHistoryDTO;
 import com.effigo.employeeManagementSystem.dto.UserDto;
 import com.effigo.employeeManagementSystem.model.User;
 import com.effigo.employeeManagementSystem.model.User.STATUS;
 import com.effigo.employeeManagementSystem.service.AdminService;
 import com.effigo.employeeManagementSystem.service.ImportUserService;
+import com.effigo.employeeManagementSystem.service.LoginHistoryService;
 
  @RestController
  @RequestMapping("/api/admin")
@@ -32,18 +32,34 @@ import com.effigo.employeeManagementSystem.service.ImportUserService;
 
    private final AdminService adminService;
    	private final ImportUserService importUserService;
+   	private final LoginHistoryService loginHistoryService;
    
-   public AdminController(AdminService adminService,ImportUserService importUserService) {
+   public AdminController(AdminService adminService,ImportUserService importUserService
+		   ,LoginHistoryService loginHistoryService) {
      this.adminService = adminService;
      this.importUserService=importUserService;
+     this.loginHistoryService=loginHistoryService;
    }
    
+   @GetMapping("/test")
+   public String test() {
+	   return "hello ";
+   }
    
    
    @GetMapping("/users")
    public ResponseEntity<List<UserDto>> getAllUsers() {
        return ResponseEntity.ok(adminService.getAllUsers());
    }
+   
+   
+   @GetMapping("/users/loginHistory")
+   public ResponseEntity<List<LoginHistoryDTO>> getAllLoginHistoryForUsers() {
+       return ResponseEntity.ok(loginHistoryService.getLoginHistoryForUsers());
+   }
+   
+   
+   
    
    @GetMapping("/users/{role}")
    public ResponseEntity<List<UserDto>> getAllUsersByTheirRole(@PathVariable("role") String roleString) {
@@ -80,6 +96,14 @@ import com.effigo.employeeManagementSystem.service.ImportUserService;
        return ResponseEntity.ok(adminService.changeUserStatus(userId,newStatus1));
    }
    
+   
+   
+   
+   @PostMapping("/users/register")
+   public ResponseEntity<UserDto> registerUserViaEmail(@RequestBody UserDto userDto) {
+      
+	   return ResponseEntity.ok(adminService.registerUserByEmail(userDto));
+   }
    
    @PostMapping("/users/import")
    public ResponseEntity<Void> importUsersFromFile(@RequestParam("file") MultipartFile file) {

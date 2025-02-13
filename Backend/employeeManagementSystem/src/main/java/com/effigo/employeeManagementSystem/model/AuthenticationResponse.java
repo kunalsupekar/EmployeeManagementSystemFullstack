@@ -1,4 +1,4 @@
-package com.effigo.employeeManagementSystem.security;
+package com.effigo.employeeManagementSystem.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

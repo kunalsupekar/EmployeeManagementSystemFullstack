@@ -23,6 +23,7 @@ export const getAllUserByRole=(role)=> apiClient.get(`api/admin/users/${role}`)
 
 export const getAllUserByStatus=(status)=> apiClient.get(`api/admin/users/status/${status}`)
 
+export const registerUserViaEmailApi=(userDto)=> apiClient.post(`api/admin/users/register`,userDto)
 
 export const getUserById=(userId)=> apiClient.get(`api/users/${userId}`)
 
@@ -54,6 +55,10 @@ export const uploadFileForUser=(userId,formData)=>
     'Content-Type': 'multipart/form-data'
   }
 })
+
+
+export const getLoginHistoryForUsers=()=> apiClient.get(`api/admin/users/loginHistory`)
+
 
 export const checkApiService=()=>
   apiClient.get(`/api/users/email`,{

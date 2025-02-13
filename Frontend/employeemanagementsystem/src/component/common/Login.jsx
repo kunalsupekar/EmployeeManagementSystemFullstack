@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../security/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function Login() {
     const [userEmail, setUserEmail] = useState('Shaku@gmail.com');
@@ -33,7 +34,11 @@ export default function Login() {
             if (!loginSuccess) {
                 setShowErrorMessage(true);
             }
+            else if(loginSuccess===403){
+                toast.error("your request has not been approved yet")
+            }
         } catch (error) {
+            
             setShowErrorMessage(true);
         } finally {
             setIsLoading(false);

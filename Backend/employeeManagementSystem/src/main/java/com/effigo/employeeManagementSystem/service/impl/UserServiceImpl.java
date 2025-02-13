@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
 		User savedUser = userRepository.save(user);
 	    List<String> adminEmails = userRepository.findEmailsByRole(User.ROLES.ADMIN);
-	  // emailService.sendEmailToAdmins(adminEmails, user.getFirstName());
+	   emailService.sendEmailToAdmins(adminEmails, user.getFirstName());
 		return modelMapper.map(savedUser, UserDto.class);
 	}
 

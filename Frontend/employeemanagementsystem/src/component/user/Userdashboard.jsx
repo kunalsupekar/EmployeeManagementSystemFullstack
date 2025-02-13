@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../security/AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import { getUserByEmail, getUserById, uploadFileForUser } from '../../api/EmployeeApiService';
 import { toast } from 'react-toastify';
@@ -143,7 +143,11 @@ export default function UserDashboard() {
                   View Documents
                 </button>
                 <button className="btn btn-outline-primary btn-sm me-2" onClick={handleUpdate}>Update Profile</button>
-                <button className="btn btn-outline-info btn-sm">Notifications</button>
+               {!isAdmin && 
+               <Link to="/userMessages" >
+                <button className="btn btn-outline-info btn-sm">Messages</button>
+                </Link>
+                }
               </div>
             </div>
           </div>

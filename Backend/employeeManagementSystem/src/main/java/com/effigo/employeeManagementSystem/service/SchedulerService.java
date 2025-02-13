@@ -23,7 +23,6 @@ public class SchedulerService {
 	@Scheduled(cron = "0 0 0 * * ?") //12 am midnight
 	public void updateUserStatusToActive() {
 		List<User> users = userRepository.findByStatus(STATUS.PENDING);
-
 		for (User user : users) {
 			user.setStatus(STATUS.ACTIVE);
 			userRepository.save(user);

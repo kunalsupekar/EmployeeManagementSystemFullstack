@@ -28,6 +28,8 @@ public interface AdminService {
 
 	
 	public void deleteUserById(int userId);
+
+	public UserDto registerUserByEmail(UserDto userDto);
 	
 	
 }
