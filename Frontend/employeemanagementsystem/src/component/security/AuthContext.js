@@ -29,6 +29,10 @@ export default function AuthProvider({ children }) {
     return sessionStorage.getItem("role") || null;
   });
 
+  const [userId, setUserId] = useState(() => {
+    return sessionStorage.getItem("userId") || null;
+  });
+
   // Update session storage whenever state changes
   useEffect(() => {
     sessionStorage.setItem("isAuthenticated", isAuthenticated);
@@ -45,6 +49,10 @@ export default function AuthProvider({ children }) {
   useEffect(() => {
     sessionStorage.setItem("role", role);
   }, [role]);
+
+  useEffect(() => {
+    sessionStorage.setItem("userId", userId);
+  }, [userId]);
 
   // Login function
   async function login(userEmail, password) {
@@ -64,9 +72,11 @@ export default function AuthProvider({ children }) {
         setUserEmail(userEmail);
         setToken(jwtToken);
         setRole(response.data.role);
+        setUserId(response.data.userId)
 
         // Store token in session storage
         sessionStorage.setItem("token", jwtToken);
+        navigate(0);  // Refreshes only the current route
 
         return true;
             }
@@ -90,12 +100,14 @@ export default function AuthProvider({ children }) {
     setUserEmail(null);
     setToken(null);
     setRole(null);
+    setUserId(null);
 
     // Remove items from session storage
     sessionStorage.removeItem("isAuthenticated");
     sessionStorage.removeItem("userEmail");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
+    sessionStorage.removeItem("userId");
 
     navigate("/");
   }
@@ -108,6 +120,7 @@ export default function AuthProvider({ children }) {
         userEmail,
         token,
         role,
+        userId,
         login,
         logout,
       }}

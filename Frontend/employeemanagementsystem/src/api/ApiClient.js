@@ -9,6 +9,8 @@ export const apiClient = axios.create(
 );
 
 
-const jwtToken=sessionStorage.getItem("token")
-console.log(jwtToken)
-apiClient.defaults.headers.common["Authorization"] = jwtToken;
+// const jwtToken=sessionStorage.getItem("token")
+// console.log(jwtToken)
+// apiClient.defaults.headers.common["Authorization"] = jwtToken;
+
+apiClient.defaults.withCredentials = true;

@@ -2,6 +2,7 @@ package com.effigo.employeeManagementSystem.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,15 @@ public class MessageServiceImpl implements MessageService {
 		// TODO Auto-generated method stub
 
 	}
+	
+	
+	public List<MessageDto> getMessagesForReceiver(int receiverId) {
+        List<Message> messages = messageRepository.findByReceiver_userIdOrderByTimestampDesc(receiverId);
+        
+        // Convert Message entities to DTOs
+        return messages.stream()
+                .map(message -> modelMapper.map(message, MessageDto.class))
+                .collect(Collectors.toList());
+    }
 
 }

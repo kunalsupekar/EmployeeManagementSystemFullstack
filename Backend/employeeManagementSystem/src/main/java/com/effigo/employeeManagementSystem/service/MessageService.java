@@ -15,4 +15,5 @@ public interface MessageService {
     List<Message> getUnreadMessages(User receiver);
     void markMessageAsRead(int messageId);
 	MessageDto sendMessage(UserDto sender, UserDto receiver, String content);
+	List<MessageDto> getMessagesForReceiver(int receiverId);
 }

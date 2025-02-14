@@ -70,8 +70,16 @@ public class AdminServiceImpl implements AdminService {
 		existingUser.setLastName(userDto.getLastName());
 		//existingUser.setEmail(userDto.getEmail());
 		existingUser.setMobileNo(userDto.getMobileNo());
-		existingUser.setStatus(userDto.getStatus());
 		existingUser.setRole(userDto.getRole());
+		if (!existingUser.getStatus().equals(userDto.getStatus())) {
+		   // System.out.println("status change");
+			emailService.sendEmailToUserWhenStatusChange(existingUser.getEmail(),
+					existingUser.getFirstName(), userDto.getStatus());
+		}
+
+	
+		existingUser.setStatus(userDto.getStatus());
+
 
 		User updatedUser = userRepository.save(existingUser);
 		// return modelMapper.map(updatedUser, UserDto.class);

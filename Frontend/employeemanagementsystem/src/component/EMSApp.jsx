@@ -14,7 +14,7 @@ import AuthProvider, { useAuth } from './security/AuthContext';
 import Userdashboard from './user/Userdashboard';
 import ApproveRequest from './admin/ApproveRequest';
 import ListAllUsers from './admin/ListAllUsers';
-import ViewUser from './admin/ViewUser';
+
 import UpdateProfile from './user/UpdateProfile';
 import DisplayDocument from './user/DisplayDocument';
 import DeleteUser from './admin/DeleteUser';
@@ -24,7 +24,6 @@ import UserLoginHistory from './admin/UserLoginHistory';
 import RegisterUserViaEmail from './admin/RegisteruserViaEmail';
 import NotFound from './common/NotFound';
 import UserMessages from './user/UserMessages';
-import AdminSendMessage from './admin/AdminSendMessage';
 import AdminMessageComponent from './admin/AdminMessageComponent';
 
 function AuthenticatedRoute({ children }) {

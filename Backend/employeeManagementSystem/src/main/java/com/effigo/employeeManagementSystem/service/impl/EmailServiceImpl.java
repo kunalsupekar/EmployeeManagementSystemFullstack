@@ -79,11 +79,10 @@ public class EmailServiceImpl implements EmailService{
 		SimpleMailMessage message = new SimpleMailMessage();
 		StringBuilder content = new StringBuilder("Hello ,\n\n");
 		content.append(firstName);
-
-		content.append(" your Request is   ");
+		content.append(" your Status is  set to ");
 		content.append(status);
 		message.setTo(email); // Convert list to array
-		message.setSubject("Your Request is  "+status);
+		message.setSubject("Your Status  is now  "+status);
 		message.setText(content.toString());
 
 		mailSender.send(message);

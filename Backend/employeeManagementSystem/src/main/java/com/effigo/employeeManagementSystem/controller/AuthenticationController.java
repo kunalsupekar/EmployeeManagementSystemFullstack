@@ -46,11 +46,11 @@ public class AuthenticationController {
         User user = (User) userDetails;
         // Get the user role
         String role = user.getRole().name();
-       
+        int userId=user.getUserId();
         loginHistoryService.saveLogin(user);
        
         // Return the token and role in the response
-        return ResponseEntity.ok(new AuthenticationResponse(jwt, role));
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, role,userId));
         
     }
 }

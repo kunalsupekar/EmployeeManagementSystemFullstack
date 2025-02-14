@@ -60,6 +60,12 @@ export const uploadFileForUser=(userId,formData)=>
 export const getLoginHistoryForUsers=()=> apiClient.get(`api/admin/users/loginHistory`)
 
 
+export const getMessagesByreceiverId=(userId)=> apiClient.get(`api/messages/receiver/${userId}`)
+
+export const sendMessageApi=(messageDto)=> apiClient.post(`api/messages/send`,messageDto)
+
+
+
 export const checkApiService=()=>
   apiClient.get(`/api/users/email`,{
     headers: {

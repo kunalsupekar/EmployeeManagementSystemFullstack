@@ -1,143 +1,281 @@
-import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useState } from "react";
+import { getMessagesByreceiverId, sendMessageApi } from "../../api/EmployeeApiService";
+import { toast } from "react-toastify";
 
 function AdminMessageComponent() {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      chatId: 'chat123',
-      sender: 'UserA',
-      content: 'Hello, I have a question about my order.',
-    },
-    {
-      id: 2,
-      chatId: 'chat123',
-      sender: 'UserA',
-      content: 'When will it be shipped?',
-    },
-    {
-      id: 3,
-      chatId: 'chat456',
-      sender: 'UserB',
-      content: 'I am having trouble logging in.',
-    },
-    {
-      id: 4,
-      chatId: 'chat456',
-      sender: 'UserB',
-      content: 'Can you reset my password?',
-    },
-    {
-      id: 5,
-      chatId: 'chat789',
-      sender: 'UserC',
-      content: 'Where can I find the documentation?',
-    },
-  ]);
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [messages, setMessages] = useState([]);
+  const [senderId, setSenderId] = useState(null);
+  const [receiverId, setReceiverId] = useState(null);
+  const [senderUsername, setSenderUsername] = useState(null);
+  const userId=sessionStorage.getItem("userId")
+  const [selectedMessage, setSelectedMessage] = useState("");
+  const [replyText, setReplyText] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  ///const isAdmin = location.state?.isAdmin || false; // Check if admin is updating
+
+  
+  const [showComposeModal, setShowComposeModal] = useState(false);
+  const [composeReceiverId, setComposeReceiverId] = useState("");
+  const [composeMessage, setComposeMessage] = useState("");
+
 
   useEffect(() => {
-    // Simulate fetching messages from Spring Boot backend on component mount
-    // fetchMessages(); // Commented out fetchMessages
+    fetchMessages();
   }, []);
 
   const fetchMessages = async () => {
-    // Replace with your actual API endpoint
-    const response = await fetch('/api/messages');
-    const data = await response.json();
-    setMessages(data);
+    try {
+      const response = await getMessagesByreceiverId(userId);
+      setMessages(response.data);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReplyClick = (chatId) => {
-    setSelectedChat(chatId);
-    setShowModal(true); // Open the modal
+  const handleReplyClick = (senderId, receiverId, set) => {
+    setSenderId(senderId);
+    setReceiverId(receiverId)
+    setSenderUsername(set)
+    setShowModal(true);
+  };
+
+  const handleViewClick = (message) => {
+    setSelectedMessage(message);
+    setShowViewModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowModal(false); // Close the modal
-    setSelectedChat(null); // Clear selected chat
-    setReplyText('');
+    setShowModal(false);
+    //setSelectedChat(null);
+    setReplyText("");
+  };
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setSelectedMessage("");
   };
 
   const handleSendReply = async () => {
-    // Send the reply to the Spring Boot backend
-    await fetch('/api/messages/reply', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chatId: selectedChat,
-        message: replyText,
-      }),
-    });
+    if (!replyText.trim()) return;
 
-    // After sending, refresh the messages or update the specific chat
-    // fetchMessages();  //Commented out fetchMessages
-    //Simulate updating the messages array with the reply
-    setMessages((prevMessages) => {
-      return prevMessages.map((message) => {
-        if (message.chatId === selectedChat) {
-          return { ...message, replies: [...(message.replies || []), replyText] };
-        }
-        return message;
-      });
-    });
-    setReplyText('');
-    setShowModal(false); // Close the modal after sending
-    setSelectedChat(null);
+    const messageDto = {
+      senderId: receiverId,   // ID of the sender (Admin in this case)
+      receiverId: senderId, // ID of the person receiving the reply
+      message : replyText,   // The actual message content
+    };
+
+    try {
+      console.log("sender id ",senderId ,"receiver id ",receiverId," message",replyText)
+      const response = await sendMessageApi(messageDto)
+
+      if (response.status===200) {
+        toast.success("message send successfully")
+        //console.log("send message")
+      }
+
+      fetchMessages();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error sending reply:", error);
+    }
+  };
+
+
+  const handleOpenComposeModal = () => {
+    setShowComposeModal(true);
+  };
+
+  const handleCloseComposeModal = () => {
+    setShowComposeModal(false);
+    setComposeReceiverId("");
+    setComposeMessage("");
+  };
+
+
+  const handleSendMessage = async () => {
+    if (!composeReceiverId.trim() || !composeMessage.trim()) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    const messageDto = {
+      senderId: userId, // Current logged-in user sending message
+      receiverId: composeReceiverId,
+      message: composeMessage,
+    };
+
+    try {
+      const response = await sendMessageApi(messageDto);
+      if (response.status === 200) {
+        toast.success("Message sent successfully");
+      }
+      fetchMessages();
+      handleCloseComposeModal();
+    } catch (error) {
+      if(error.status===404){
+        toast.error(`user not found with userId ${composeReceiverId}`);
+      }else{
+        toast.error("something went wrong ")
+      }
+      console.error("Error sending message:", error);
+    }
   };
 
   return (
-    <div className="container">
-      <h2>Admin Message Panel</h2>
-      <div className="message-list">
-        {messages.map((message) => (
-          <div key={message.id} className="message-item card mb-3">
-            <div className="card-body">
-              <h5 className="card-title">
-                <strong>User:</strong> {message.sender}
-              </h5>
-              <p className="card-text">{message.content}</p>
-              <button className="btn btn-primary" onClick={() => handleReplyClick(message.chatId)}>
-                Reply
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="container mt-4">
+    <div className="d-flex justify-content-between align-items-center mb-3">
+      <h2 className="h5 text-primary fw-bold py-2 border-bottom">📩 Message Panel</h2>
+      <button className="btn btn-success btn-sm" onClick={handleOpenComposeModal}>
+        ➕ Compose Message
+      </button>
+    </div>
+      {loading ? (
+        <p>Loading messages...</p>
+      ) : (
+        <div className="message-list">
+          {messages.length > 0 ? (
+            messages.map((message) => (
+              <div key={message.id} className="card mb-2" style={{ maxWidth: "800px" }}>
+                <div className="card-body p-2">
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div className="flex-grow-1">
+                      <h6 className="card-title mb-1">
+                        <strong>From:</strong> {message.senderUsername}
+                      </h6>
+                      <p className="card-text mb-1">{message.message}</p>
+                    </div>
+                    <div className="text-nowrap">
+                      <button
+                        className="btn btn-secondary btn-sm me-2"
+                        onClick={() => handleViewClick(message)}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleReplyClick(message.senderId, message.receiverId, message.senderUsername)}
+                      >
+                        Reply
+                      </button>
+                    </div>
+                  </div>
 
-      {/* Bootstrap Modal */}
-      <div className={`modal ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Reply to Chat {selectedChat}</h5>
-              <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <textarea
-                className="form-control"
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-              />
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>
-                Close
-              </button>
-              <button type="button" className="btn btn-primary" onClick={handleSendReply}>
-                Send Reply
-              </button>
-            </div>
-          </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted">No messages found.</p>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* Optional: Add a backdrop for the modal */}
-      {showModal && <div className="modal-backdrop fade show"></div>}
+
+
+{showComposeModal && (
+        <>
+          <div className="modal show d-block" tabIndex="-1">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Compose Message</h5>
+                  <button type="button" className="btn-close" onClick={handleCloseComposeModal}></button>
+                </div>
+                <div className="modal-body p-2">
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Receiver's User ID"
+                    value={composeReceiverId}
+                    onChange={(e) => setComposeReceiverId(e.target.value)}
+                  />
+                  <textarea
+                    className="form-control"
+                    placeholder="Type your message..."
+                    value={composeMessage}
+                    onChange={(e) => setComposeMessage(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={handleCloseComposeModal}>
+                    Cancel
+                  </button>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={handleSendMessage}>
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show"></div>
+        </>
+      )}
+
+      {/* Reply Modal */}
+      {showModal && (
+        <>
+          <div className="modal show d-block" tabIndex="-1">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Reply to  {senderUsername}</h5>
+                  <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+                </div>
+                <div className="modal-body p-2">
+                  <textarea
+                    className="form-control"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Type your reply..."
+                    rows={3}
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={handleCloseModal}>
+                    Close
+                  </button>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={handleSendReply}>
+                    Send Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show"></div>
+        </>
+      )}
+
+      {/* View Message Modal */}
+      {showViewModal && selectedMessage && (
+        <>
+          <div className="modal show d-block" tabIndex="-1">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Message from {selectedMessage.senderUsername}</h5>
+                  <button type="button" className="btn-close" onClick={handleCloseViewModal}></button>
+                </div>
+                <div className="modal-body">
+                  <p>{selectedMessage.message}</p>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={handleCloseViewModal}>
+                    Close
+                  </button>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={handleCloseViewModal}>
+                    Mark as read
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show"></div>
+        </>
+      )}
     </div>
   );
 }
