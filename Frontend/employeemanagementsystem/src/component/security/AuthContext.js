@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { executeJwtAuthenticationService } from "../../api/AuthenticationServiceApi";
+import Cookies from 'js-cookie';
+import CryptoJS from 'crypto-js';
 
 // Create AuthContext
 export const AuthContext = createContext();
@@ -11,6 +13,23 @@ export const useAuth = () => useContext(AuthContext);
 // AuthProvider component
 export default function AuthProvider({ children }) {
   const navigate = useNavigate();
+
+
+  // const secretKey = "KgTmlUOJBikBXKpfVpJfVFEqgUeOVnmL";
+  // const encryptPassword = (password) => CryptoJS.AES.encrypt(password, secretKey).toString();
+
+
+  const secretKey = CryptoJS.enc.Utf8.parse("KgTmlUOJBikBXKpfVpJfVFEqgUeOVnmL"); 
+
+
+  const encryptPassword = (password) => {
+    const encrypted = CryptoJS.AES.encrypt(password, secretKey, {
+      mode: CryptoJS.mode.ECB,
+      padding: CryptoJS.pad.Pkcs7
+    });
+    return encrypted.toString(); // Ensure it's Base64 encoded
+  };
+
 
   // Separate states for user authentication and details
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -57,7 +76,9 @@ export default function AuthProvider({ children }) {
   // Login function
   async function login(userEmail, password) {
     try {
-      const response = await executeJwtAuthenticationService({ email: userEmail, password });
+      const encryptedPassword = encryptPassword(password);
+      const response = await executeJwtAuthenticationService({ email: userEmail, password:encryptedPassword });
+
 
       // if(response.data.message="User is disabled"){
       //   console.log('profile is inactive')
@@ -65,7 +86,7 @@ export default function AuthProvider({ children }) {
       
 
       if (response.status === 200) {
-        const jwtToken = "Bearer " + response.data.token;
+        const jwtToken = response.data.token;
 
         // Update individual states
         setIsAuthenticated(true);
@@ -74,8 +95,15 @@ export default function AuthProvider({ children }) {
         setRole(response.data.role);
         setUserId(response.data.userId)
 
+        Cookies.set("token", jwtToken, {
+          expires: 1,   // Expires in 1 day
+          //secure: true, // Ensures it is sent only over HTTPS
+          sameSite: "Strict"
+      });
+
+
         // Store token in session storage
-        sessionStorage.setItem("token", jwtToken);
+        //sessionStorage.setItem("token", jwtToken);
         navigate(0);  // Refreshes only the current route
 
         return true;
@@ -101,6 +129,8 @@ export default function AuthProvider({ children }) {
     setToken(null);
     setRole(null);
     setUserId(null);
+
+    Cookies.remove("token");
 
     // Remove items from session storage
     sessionStorage.removeItem("isAuthenticated");

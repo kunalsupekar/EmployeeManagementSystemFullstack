@@ -14,7 +14,7 @@ function Header() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
       <div className="container">
-        <Link className="navbar-brand" to="/">EMS</Link>
+        <Link className="navbar-brand" to="#">EMployee Management System</Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -30,7 +30,7 @@ function Header() {
         <div className="collapse navbar-collapse" id="navbarNav">
           {/* Left Side Menu */}
           <ul className="navbar-nav me-auto">
-            <li className="nav-item active">
+            {/* <li className="nav-item active">
               <Link className="nav-link" to="/">Home</Link>
             </li>
             <li className="nav-item">
@@ -38,7 +38,7 @@ function Header() {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/">Pricing</Link>
-            </li>
+            </li> */}
           </ul>
 
           {/* Right Side Menu (Login/Logout Button) */}

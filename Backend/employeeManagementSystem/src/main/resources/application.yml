@@ -1,6 +1,11 @@
 spring:
   application:
-    name: TodoApplication
+    name: employeeManagementSystem
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
   datasource:
     url: jdbc:mysql://localhost:3306/employee
@@ -27,8 +32,9 @@ spring:
     hibernate:
       ddl-auto: update
 
-jwt:
-  secret: afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf
-  expiration: 3600000  # JWT token expiration in milliseconds (1 hour)
-  refresh-token:
-    expiration: 86400000  # Refresh token expiration in milliseconds (1 day)
+aws:
+  accessKeyId: AKIAZ5TC4XQ6ZI4TWBZS
+  secretAccessKey: 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
+  s3:
+    bucketName: employee-management-system-fileupload
+    region: ap-south-1

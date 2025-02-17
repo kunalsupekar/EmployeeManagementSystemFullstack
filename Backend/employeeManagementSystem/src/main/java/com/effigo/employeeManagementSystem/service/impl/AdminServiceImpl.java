@@ -101,7 +101,9 @@ public class AdminServiceImpl implements AdminService {
 	public void deleteUserById(int userId) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
-		//System.out.println("user deleted succcessfully");
+		
+		
+		fileUploadService.deleteUserFolder(userId);
 		userRepository.delete(user);
 	}
     

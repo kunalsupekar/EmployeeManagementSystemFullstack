@@ -3,13 +3,18 @@ import { Link, Outlet } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminDashboard.css'; 
 const AdminDashboard = () => {
+
+    const userName=sessionStorage.getItem("userEmail")
+
     return (
         <div className="container-fluid">
             <div className="row"> {/* Use a row to contain sidebar and content */}
                 {/* Sidebar */}
+                
                 <nav className="col-md-3 col-lg-2 d-md-block bg-light sidebar"> {/* Use nav element */}
                     <div className="position-sticky pt-3">
-                       
+                        <p>Welcome</p>
+                       <p>{userName}</p>
                         <h2 className="sidebar-heading px-3 py-4">
                         <Link to="/admin">Admin Dashboard</Link></h2>
                         <ul className="nav flex-column">

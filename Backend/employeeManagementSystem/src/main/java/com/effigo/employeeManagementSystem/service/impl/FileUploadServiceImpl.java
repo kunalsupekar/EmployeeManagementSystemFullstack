@@ -5,10 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +20,11 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.effigo.employeeManagementSystem.service.IFileUploadService;
 
 @Service
@@ -89,4 +96,47 @@ public class FileUploadServiceImpl implements IFileUploadService {
         logger.info("File successfully converted: {}", convFile.getAbsolutePath());
         return convFile;
     }
+    
+    
+    
+    @Override
+    @Async
+    public void deleteUserFolder(int userId) {
+        String folderPrefix = "documents/" + userId + "/"; // The "folder" in S3
+
+        logger.info("Deleting folder: {} for user ID: {}", folderPrefix, userId);
+
+        try {
+            // List all objects inside the "folder"
+            ListObjectsV2Request listRequest = new ListObjectsV2Request()
+                    .withBucketName(bucketName)
+                    .withPrefix(folderPrefix);
+
+            ListObjectsV2Result result;
+            do {
+                result = s3Client.listObjectsV2(listRequest);
+                List<S3ObjectSummary> objects = result.getObjectSummaries();
+
+                if (!objects.isEmpty()) {
+                    List<DeleteObjectsRequest.KeyVersion> keys = objects.stream()
+                            .map(obj -> new DeleteObjectsRequest.KeyVersion(obj.getKey()))
+                            .collect(Collectors.toList());
+
+                    DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest(bucketName).withKeys(keys);
+                    s3Client.deleteObjects(deleteRequest);
+
+                    logger.info("Deleted {} objects in folder: {}", keys.size(), folderPrefix);
+                }
+
+                // Set continuation token for paginated results
+                listRequest.setContinuationToken(result.getNextContinuationToken());
+            } while (result.isTruncated());
+
+            logger.info("Folder successfully deleted: {}", folderPrefix);
+        } catch (Exception e) {
+            logger.error("Failed to delete folder: {}", folderPrefix, e);
+            throw new RuntimeException("Folder deletion failed: " + e.getMessage(), e);
+        }
+    }
+
 }

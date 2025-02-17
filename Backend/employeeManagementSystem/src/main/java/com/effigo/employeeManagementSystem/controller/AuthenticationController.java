@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.effigo.employeeManagementSystem.model.AuthenticationResponse;
 import com.effigo.employeeManagementSystem.model.User;
+import com.effigo.employeeManagementSystem.security.AESService;
 import com.effigo.employeeManagementSystem.security.JwtUtil;
 import com.effigo.employeeManagementSystem.service.CustomUserDetailsService;
 import com.effigo.employeeManagementSystem.service.LoginHistoryService;
@@ -27,6 +28,9 @@ public class AuthenticationController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private AESService aesService;
     
     @Autowired
     private LoginHistoryService loginHistoryService;
@@ -34,8 +38,11 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody User authenticationRequest) throws Exception {
         try {
+        	
+        	String password=aesService.decrypt(authenticationRequest.getPassword());
+        	//System.out.println(password);
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), password)
             );
         } catch (BadCredentialsException e) {
             throw new Exception("Incorrect username or password", e);
