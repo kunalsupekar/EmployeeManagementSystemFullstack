@@ -25,12 +25,15 @@ spring:
             enable: true
             required: true # Ensure STARTTLS is required
 
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: update
+#  jpa:
+#   properties:
+#     hibernate:
+#       dialect: org.hibernate.dialect.MySQL8Dialect
+#   hibernate:
+#     ddl-auto: update
+
+server: 
+  port: 5000
 
 aws:
   accessKeyId: AKIAZ5TC4XQ6ZI4TWBZS

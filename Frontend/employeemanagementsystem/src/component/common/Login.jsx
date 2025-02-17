@@ -5,7 +5,7 @@ import { useAuth } from '../security/AuthContext';
 import { toast } from 'react-toastify';
 
 export default function Login() {
-    const [userEmail, setUserEmail] = useState('Shaku@gmail.com');
+    const [userEmail, setUserEmail] = useState('kunalsupekar965@gmail.com');
     const [password, setPassword] = useState('123');
     const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

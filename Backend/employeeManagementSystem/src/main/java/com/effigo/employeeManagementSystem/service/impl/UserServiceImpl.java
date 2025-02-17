@@ -50,8 +50,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public UserDto addUser(UserDto userDto) {
-		userDto.setRole(ROLES.USER);
-		userDto.setStatus(STATUS.PENDING);
+	//	userDto.setRole(ROLES.USER);
+		userDto.setRole(ROLES.ADMIN);
+		userDto.setStatus(STATUS.ACTIVE);
 		userDto.setRegisteredAt(LocalDateTime.now());
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
